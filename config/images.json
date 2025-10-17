@@ -1,9 +1,9 @@
 {
-  "hero-1.jpg": "https://thriftstorage.blob.core.windows.net/clothing-images/hero-1.jpg",
-  "hero-2.jpg": "https://thriftstorage.blob.core.windows.net/clothing-images/hero-2.jpg",
-  "hero-3.jpg": "https://thriftstorage.blob.core.windows.net/clothing-images/hero-3.jpg",
-  "category-tops.jpg": "https://thriftstorage.blob.core.windows.net/clothing-images/category-tops.jpg",
-  "category-dresses.jpg": "https://thriftstorage.blob.core.windows.net/clothing-images/category-dresses.jpg",
-  "category-shoes.jpg": "https://thriftstorage.blob.core.windows.net/clothing-images/category-shoes.jpg",
-  "category-accessories.jpg": "https://thriftstorage.blob.core.windows.net/clothing-images/category-accessories.jpg"
+  "hero-1.jpg": "/images/hero-1.jpg",
+  "hero-2.jpg": "/images/hero-2.jpg",
+  "hero-3.jpg": "/images/hero-3.jpg",
+  "category-tops.jpg": "/images/category-tops.jpg",
+  "category-dresses.jpg": "/images/category-dresses.jpg",
+  "category-shoes.jpg": "/images/category-shoes.jpg",
+  "category-accessories.jpg": "/images/category-accessories.jpg"
 }

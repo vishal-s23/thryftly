@@ -7,21 +7,18 @@ const router = express.Router();
 // Get user profile
 router.get('/:id', async (req, res) => {
   try {
-    const user = await User.findById(req.params.id)
-      .select('-password')
-      .populate('favorites', 'title price images category status');
+    const user = await User.findById(req.params.id);
     
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
     // Get user's products
-    const products = await Product.find({ seller: req.params.id })
-      .populate('seller', 'username firstName lastName avatar rating')
-      .sort({ createdAt: -1 });
+    const productQuery = await Product.find({ seller: req.params.id });
+    const products = productQuery.sort({ createdAt: -1 });
 
     res.json({
-      user,
+      user: user.toJSON(),
       products,
       productCount: products.length
     });
@@ -34,6 +31,11 @@ router.get('/:id', async (req, res) => {
 // Update user profile
 router.put('/profile', authenticateToken, async (req, res) => {
   try {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
     const updates = {
       firstName: req.body.firstName,
       lastName: req.body.lastName,
@@ -42,18 +44,15 @@ router.put('/profile', authenticateToken, async (req, res) => {
       phone: req.body.phone
     };
 
-    // Remove undefined fields
-    Object.keys(updates).forEach(key => 
-      updates[key] === undefined && delete updates[key]
-    );
+    // Remove undefined fields and update user
+    Object.keys(updates).forEach(key => {
+      if (updates[key] !== undefined) {
+        user[key] = updates[key];
+      }
+    });
 
-    const user = await User.findByIdAndUpdate(
-      req.user._id,
-      updates,
-      { new: true, runValidators: true }
-    ).select('-password');
-
-    res.json(user);
+    await user.save();
+    res.json(user.toJSON());
   } catch (error) {
     console.error('Error updating profile:', error);
     res.status(500).json({ message: 'Error updating profile' });
@@ -63,16 +62,21 @@ router.put('/profile', authenticateToken, async (req, res) => {
 // Get user's favorites
 router.get('/favorites', authenticateToken, async (req, res) => {
   try {
-    const user = await User.findById(req.user._id)
-      .populate({
-        path: 'favorites',
-        populate: {
-          path: 'seller',
-          select: 'username firstName lastName avatar rating'
-        }
-      });
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
 
-    res.json(user.favorites);
+    // Get favorite products
+    const favoriteProducts = [];
+    for (const productId of user.favorites) {
+      const product = await Product.findById(productId);
+      if (product) {
+        favoriteProducts.push(product);
+      }
+    }
+
+    res.json(favoriteProducts);
   } catch (error) {
     console.error('Error fetching favorites:', error);
     res.status(500).json({ message: 'Error fetching favorites' });
@@ -82,8 +86,8 @@ router.get('/favorites', authenticateToken, async (req, res) => {
 // Get user's products
 router.get('/my-products', authenticateToken, async (req, res) => {
   try {
-    const products = await Product.find({ seller: req.user._id })
-      .sort({ createdAt: -1 });
+    const productQuery = await Product.find({ seller: req.user._id });
+    const products = productQuery.sort({ createdAt: -1 });
 
     res.json(products);
   } catch (error) {

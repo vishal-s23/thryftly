@@ -71,13 +71,38 @@ router.get('/', async (req, res) => {
         sort.createdAt = -1;
     }
 
-    const products = await Product.find(query)
-      .populate('seller', 'username firstName lastName avatar rating')
-      .sort(sort)
-      .limit(limit)
-      .skip(skip);
-
-    const total = await Product.countDocuments(query);
+    let products = await Product.find(query);
+    
+    // Sort products
+    const sortKey = Object.keys(sort)[0];
+    const sortOrder = sort[sortKey];
+    if (sortKey) {
+      products.sort((a, b) => {
+        if (sortOrder === 1) return a[sortKey] > b[sortKey] ? 1 : -1;
+        return a[sortKey] < b[sortKey] ? 1 : -1;
+      });
+    }
+    
+    const total = products.length;
+    
+    // Apply pagination
+    products = products.slice(skip, skip + limit);
+    
+    // Populate seller info (simplified)
+    const User = require('../models/User');
+    for (let product of products) {
+      const seller = await User.findById(product.seller);
+      if (seller) {
+        product.seller = {
+          _id: seller._id,
+          username: seller.username,
+          firstName: seller.firstName,
+          lastName: seller.lastName,
+          avatar: seller.avatar,
+          rating: seller.rating
+        };
+      }
+    }
 
     res.json({
       products,

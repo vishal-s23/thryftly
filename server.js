@@ -1,6 +1,5 @@
 require('dotenv').config();
 const express = require('express');
-const mongoose = require('mongoose');
 const session = require('express-session');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -52,9 +51,7 @@ app.use(expressLayouts);
 app.set('layout', 'layout');
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/thriftly')
-.then(() => console.log('Connected to MongoDB'))
-.catch(err => console.error('MongoDB connection error:', err));
+// MongoDB removed - using in-memory storage
 
 // Routes
 app.use('/', require('./routes/index'));

@@ -8,21 +8,34 @@ const router = express.Router();
 router.get('/', async (req, res) => {
   try {
     // Get featured products
-    const featuredProducts = await Product.find({ 
+    let featuredProducts = await Product.find({ 
       status: 'available', 
       featured: true 
-    })
-    .populate('seller', 'username firstName lastName avatar rating')
-    .limit(8)
-    .sort({ createdAt: -1 });
+    });
+    featuredProducts.sort((a, b) => b.createdAt - a.createdAt);
+    featuredProducts = featuredProducts.slice(0, 8);
 
     // Get recent products if no featured products
-    const recentProducts = await Product.find({ status: 'available' })
-      .populate('seller', 'username firstName lastName avatar rating')
-      .limit(8)
-      .sort({ createdAt: -1 });
+    let recentProducts = await Product.find({ status: 'available' });
+    recentProducts.sort((a, b) => b.createdAt - a.createdAt);
+    recentProducts = recentProducts.slice(0, 8);
 
-    const products = featuredProducts.length > 0 ? featuredProducts : recentProducts;
+    let products = featuredProducts.length > 0 ? featuredProducts : recentProducts;
+    
+    // Populate seller info
+    for (let product of products) {
+      const seller = await User.findById(product.seller);
+      if (seller) {
+        product.seller = {
+          _id: seller._id,
+          username: seller.username,
+          firstName: seller.firstName,
+          lastName: seller.lastName,
+          avatar: seller.avatar,
+          rating: seller.rating
+        };
+      }
+    }
 
     res.render('index', { 
       title: 'Thriftly - Sustainable Fashion Marketplace',
@@ -56,13 +69,26 @@ router.get('/marketplace', async (req, res) => {
       query.$text = { $search: req.query.search };
     }
 
-    const products = await Product.find(query)
-      .populate('seller', 'username firstName lastName avatar rating')
-      .sort({ createdAt: -1 })
-      .limit(limit)
-      .skip(skip);
-
-    const total = await Product.countDocuments(query);
+    let allProducts = await Product.find(query);
+    allProducts.sort((a, b) => b.createdAt - a.createdAt);
+    
+    const total = allProducts.length;
+    const products = allProducts.slice(skip, skip + limit);
+    
+    // Populate seller info
+    for (let product of products) {
+      const seller = await User.findById(product.seller);
+      if (seller) {
+        product.seller = {
+          _id: seller._id,
+          username: seller.username,
+          firstName: seller.firstName,
+          lastName: seller.lastName,
+          avatar: seller.avatar,
+          rating: seller.rating
+        };
+      }
+    }
 
     res.render('marketplace', {
       title: 'Browse All Items',
@@ -88,11 +114,25 @@ router.get('/marketplace', async (req, res) => {
 // Product detail page
 router.get('/product/:id', async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id)
-      .populate('seller', 'username firstName lastName avatar rating location createdAt');
+    const product = await Product.findById(req.params.id);
 
     if (!product) {
       return res.status(404).render('404', { title: 'Product Not Found' });
+    }
+
+    // Populate seller info
+    const seller = await User.findById(product.seller);
+    if (seller) {
+      product.seller = {
+        _id: seller._id,
+        username: seller.username,
+        firstName: seller.firstName,
+        lastName: seller.lastName,
+        avatar: seller.avatar,
+        rating: seller.rating,
+        location: seller.location,
+        createdAt: seller.createdAt
+      };
     }
 
     // Increment view count
@@ -100,14 +140,28 @@ router.get('/product/:id', async (req, res) => {
     await product.save();
 
     // Get related products
-    const relatedProducts = await Product.find({
-      _id: { $ne: product._id },
+    let relatedProducts = await Product.find({
       category: product.category,
       status: 'available'
-    })
-    .populate('seller', 'username firstName lastName avatar rating')
-    .limit(4)
-    .sort({ createdAt: -1 });
+    }).filter(p => p._id != product._id);
+    
+    relatedProducts.sort((a, b) => b.createdAt - a.createdAt);
+    relatedProducts = relatedProducts.slice(0, 4);
+    
+    // Populate seller info for related products
+    for (let relProduct of relatedProducts) {
+      const relSeller = await User.findById(relProduct.seller);
+      if (relSeller) {
+        relProduct.seller = {
+          _id: relSeller._id,
+          username: relSeller.username,
+          firstName: relSeller.firstName,
+          lastName: relSeller.lastName,
+          avatar: relSeller.avatar,
+          rating: relSeller.rating
+        };
+      }
+    }
 
     res.render('product-detail', {
       title: product.title,
@@ -124,11 +178,22 @@ router.get('/product/:id', async (req, res) => {
 // Dashboard (protected route)
 router.get('/dashboard', requireAuth, async (req, res) => {
   try {
-    const user = await User.findById(req.session.userId)
-      .populate('favorites', 'title price images category status');
+    const user = await User.findById(req.session.userId);
+    if (!user) {
+      return res.redirect('/auth/login');
+    }
 
-    const userProducts = await Product.find({ seller: req.session.userId })
-      .sort({ createdAt: -1 });
+    let userProducts = await Product.find({ seller: req.session.userId });
+    userProducts.sort((a, b) => b.createdAt - a.createdAt);
+
+    // Get favorite products
+    const favoriteProducts = [];
+    for (const productId of user.favorites.slice(0, 6)) {
+      const favProduct = await Product.findById(productId);
+      if (favProduct) {
+        favoriteProducts.push(favProduct);
+      }
+    }
 
     const stats = {
       totalProducts: userProducts.length,
@@ -140,10 +205,10 @@ router.get('/dashboard', requireAuth, async (req, res) => {
 
     res.render('dashboard', {
       title: 'My Dashboard',
-      user,
+      user: user.toJSON(),
       products: userProducts.slice(0, 6), // Show latest 6 products
       stats,
-      favorites: user.favorites.slice(0, 6) // Show latest 6 favorites
+      favorites: favoriteProducts
     });
   } catch (error) {
     console.error('Error loading dashboard:', error);
