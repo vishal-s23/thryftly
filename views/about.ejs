@@ -1,0 +1,50 @@
+<!-- About Page -->
+<section class="page-header">
+    <div class="container">
+        <h1>About Thriftly</h1>
+        <p>Building a sustainable fashion future together</p>
+    </div>
+</section>
+
+<section class="about-content">
+    <div class="container">
+        <div class="content-grid">
+            <div class="content-section">
+                <h2>Our Mission</h2>
+                <p>At Thriftly, we believe that fashion should be sustainable, accessible, and stylish. We're creating a marketplace where people can buy and sell pre-loved clothing, reducing fashion waste while building amazing wardrobes.</p>
+            </div>
+            
+            <div class="content-section">
+                <h2>Our Story</h2>
+                <p>Founded in 2024, Thriftly started with a simple idea: make sustainable fashion accessible to everyone. We're passionate about extending the lifecycle of clothing and building a community of conscious consumers.</p>
+            </div>
+            
+            <div class="content-section">
+                <h2>Why Choose Thriftly?</h2>
+                <ul>
+                    <li>✨ Unique, pre-loved fashion finds</li>
+                    <li>🌱 Reduce fashion environmental impact</li>
+                    <li>💰 Affordable prices</li>
+                    <li>🤝 Trusted community marketplace</li>
+                    <li>📦 Easy listing and shopping experience</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="cta">
+    <div class="container">
+        <div class="cta-content">
+            <h2>Ready to Join Our Community?</h2>
+            <div class="cta-actions">
+                <% if (typeof user === 'undefined' || !user) { %>
+                    <a href="/auth/register" class="btn btn-primary">Get Started</a>
+                <% } else { %>
+                    <a href="/marketplace" class="btn btn-primary">Browse Items</a>
+                <% } %>
+                <a href="/contact" class="btn btn-outline">Contact Us</a>
+            </div>
+        </div>
+    </div>
+</section>

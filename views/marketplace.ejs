@@ -1,0 +1,161 @@
+<!-- Search and Filters -->
+<section class="marketplace-filters">
+    <div class="container">
+        <div class="search-bar">
+            <form action="/marketplace" method="GET" class="search-form">
+                <input type="text" name="search" placeholder="Search for items..." value="<%= typeof query !== 'undefined' ? query.search || '' : '' %>">
+                <button type="submit">Search</button>
+            </form>
+        </div>
+        
+        <div class="filters">
+            <select name="category" onchange="applyFilters()">
+                <option value="">All Categories</option>
+                <option value="tops" <%= typeof query !== 'undefined' && query.category === 'tops' ? 'selected' : '' %>>Tops</option>
+                <option value="dresses" <%= typeof query !== 'undefined' && query.category === 'dresses' ? 'selected' : '' %>>Dresses</option>
+                <option value="shoes" <%= typeof query !== 'undefined' && query.category === 'shoes' ? 'selected' : '' %>>Shoes</option>
+                <option value="accessories" <%= typeof query !== 'undefined' && query.category === 'accessories' ? 'selected' : '' %>>Accessories</option>
+            </select>
+            
+            <select name="condition" onchange="applyFilters()">
+                <option value="">All Conditions</option>
+                <option value="New with tags" <%= typeof query !== 'undefined' && query.condition === 'New with tags' ? 'selected' : '' %>>New with tags</option>
+                <option value="Like new" <%= typeof query !== 'undefined' && query.condition === 'Like new' ? 'selected' : '' %>>Like new</option>
+                <option value="Good" <%= typeof query !== 'undefined' && query.condition === 'Good' ? 'selected' : '' %>>Good</option>
+                <option value="Fair" <%= typeof query !== 'undefined' && query.condition === 'Fair' ? 'selected' : '' %>>Fair</option>
+            </select>
+            
+            <select name="size" onchange="applyFilters()">
+                <option value="">All Sizes</option>
+                <option value="XS" <%= typeof query !== 'undefined' && query.size === 'XS' ? 'selected' : '' %>>XS</option>
+                <option value="S" <%= typeof query !== 'undefined' && query.size === 'S' ? 'selected' : '' %>>S</option>
+                <option value="M" <%= typeof query !== 'undefined' && query.size === 'M' ? 'selected' : '' %>>M</option>
+                <option value="L" <%= typeof query !== 'undefined' && query.size === 'L' ? 'selected' : '' %>>L</option>
+                <option value="XL" <%= typeof query !== 'undefined' && query.size === 'XL' ? 'selected' : '' %>>XL</option>
+            </select>
+        </div>
+    </div>
+</section>
+
+<!-- Products Grid -->
+<section class="products-section">
+    <div class="container">
+        <% if (products && products.length > 0) { %>
+            <div class="products-grid">
+                <% products.forEach(product => { %>
+                    <div class="product-card">
+                        <div class="product-image">
+                            <a href="/product/<%= product._id %>">
+                                <img src="<%= product.images[0]?.url || '/images/placeholder.jpg' %>" 
+                                     alt="<%= product.title %>" 
+                                     class="product-img">
+                            </a>
+                            <div class="product-actions">
+                                <button class="like-btn" data-product-id="<%= product._id %>">
+                                    <i class="far fa-heart"></i>
+                                </button>
+                            </div>
+                            <div class="product-badges">
+                                <% if (product.condition === 'New with tags') { %>
+                                    <span class="badge badge-new">New</span>
+                                <% } %>
+                                <% if (product.shippingOptions?.freeShipping) { %>
+                                    <span class="badge badge-shipping">Free Shipping</span>
+                                <% } %>
+                            </div>
+                        </div>
+                        <div class="product-info">
+                            <div class="product-brand"><%= product.brand || 'Unbranded' %></div>
+                            <h3 class="product-title">
+                                <a href="/product/<%= product._id %>"><%= product.title %></a>
+                            </h3>
+                            <div class="product-details">
+                                <span class="product-size">Size <%= product.size %></span>
+                                <span class="product-condition"><%= product.condition %></span>
+                            </div>
+                            <div class="product-price">
+                                $<%= product.price.toFixed(2) %>
+                                <% if (product.originalPrice && product.originalPrice > product.price) { %>
+                                    <span class="original-price">$<%= product.originalPrice.toFixed(2) %></span>
+                                <% } %>
+                            </div>
+                            <% if (product.seller) { %>
+                                <div class="product-seller">
+                                    <img src="<%= product.seller.avatar || '/images/default-avatar.jpg' %>" 
+                                         alt="<%= product.seller.firstName %>" 
+                                         class="seller-avatar">
+                                    <span class="seller-name"><%= product.seller.firstName %> <%= product.seller.lastName %></span>
+                                    <div class="seller-rating">
+                                        <% for (let i = 1; i <= 5; i++) { %>
+                                            <i class="<%= i <= (product.seller.rating?.average || 0) ? 'fas' : 'far' %> fa-star"></i>
+                                        <% } %>
+                                    </div>
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+            
+            <!-- Pagination -->
+            <% if (totalPages > 1) { %>
+                <div class="pagination">
+                    <% if (currentPage > 1) { %>
+                        <a href="?page=<%= currentPage - 1 %>" class="btn btn-outline">Previous</a>
+                    <% } %>
+                    
+                    <% for (let i = 1; i <= totalPages; i++) { %>
+                        <% if (i === currentPage) { %>
+                            <span class="btn btn-primary"><%= i %></span>
+                        <% } else { %>
+                            <a href="?page=<%= i %>" class="btn btn-outline"><%= i %></a>
+                        <% } %>
+                    <% } %>
+                    
+                    <% if (currentPage < totalPages) { %>
+                        <a href="?page=<%= currentPage + 1 %>" class="btn btn-outline">Next</a>
+                    <% } %>
+                </div>
+            <% } %>
+        <% } else { %>
+            <div class="empty-state">
+                <i class="fas fa-tshirt"></i>
+                <h3>No items found</h3>
+                <p>Try adjusting your search filters or browse all categories.</p>
+                <a href="/marketplace" class="btn btn-primary">View All Items</a>
+            </div>
+        <% } %>
+    </div>
+</section>
+
+<script>
+function applyFilters() {
+    const form = document.createElement('form');
+    form.method = 'GET';
+    form.action = '/marketplace';
+    
+    const selects = document.querySelectorAll('select');
+    selects.forEach(select => {
+        if (select.value) {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = select.name;
+            input.value = select.value;
+            form.appendChild(input);
+        }
+    });
+    
+    // Add search query if exists
+    const searchInput = document.querySelector('input[name="search"]');
+    if (searchInput && searchInput.value) {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'search';
+        input.value = searchInput.value;
+        form.appendChild(input);
+    }
+    
+    document.body.appendChild(form);
+    form.submit();
+}
+</script>

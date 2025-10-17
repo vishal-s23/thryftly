@@ -1,0 +1,195 @@
+<!-- Sell Item Form -->
+<section class="sell-section">
+    <div class="container">
+        <div class="sell-header">
+            <h1>List Your Item</h1>
+            <p>Share your preloved fashion with the Thriftly community</p>
+        </div>
+
+        <form action="/api/products" method="POST" enctype="multipart/form-data" class="sell-form">
+            <!-- Photos -->
+            <div class="form-section">
+                <h3>Photos</h3>
+                <div class="image-upload">
+                    <div class="upload-area" onclick="document.getElementById('images').click()">
+                        <i class="fas fa-camera"></i>
+                        <p>Click to add photos</p>
+                        <small>Add up to 8 photos. The first photo will be your cover image.</small>
+                    </div>
+                    <input type="file" id="images" name="images" multiple accept="image/*" style="display: none;">
+                    <div id="image-preview" class="image-preview"></div>
+                </div>
+            </div>
+
+            <!-- Basic Information -->
+            <div class="form-section">
+                <h3>Basic Information</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="title">Title *</label>
+                        <input type="text" id="title" name="title" required class="form-input" 
+                               placeholder="e.g. Vintage Denim Jacket">
+                    </div>
+                    <div class="form-group">
+                        <label for="brand">Brand</label>
+                        <input type="text" id="brand" name="brand" class="form-input" 
+                               placeholder="e.g. Levi's">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Description *</label>
+                    <textarea id="description" name="description" required class="form-input" rows="4"
+                              placeholder="Describe the item's style, fit, and any notable features..."></textarea>
+                </div>
+            </div>
+
+            <!-- Category & Details -->
+            <div class="form-section">
+                <h3>Category & Details</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="category">Category *</label>
+                        <select id="category" name="category" required class="form-input">
+                            <option value="">Select Category</option>
+                            <option value="tops">Tops</option>
+                            <option value="dresses">Dresses</option>
+                            <option value="bottoms">Bottoms</option>
+                            <option value="outerwear">Outerwear</option>
+                            <option value="shoes">Shoes</option>
+                            <option value="accessories">Accessories</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="size">Size *</label>
+                        <select id="size" name="size" required class="form-input">
+                            <option value="">Select Size</option>
+                            <option value="XXS">XXS</option>
+                            <option value="XS">XS</option>
+                            <option value="S">S</option>
+                            <option value="M">M</option>
+                            <option value="L">L</option>
+                            <option value="XL">XL</option>
+                            <option value="XXL">XXL</option>
+                            <option value="One Size">One Size</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="condition">Condition *</label>
+                        <select id="condition" name="condition" required class="form-input">
+                            <option value="">Select Condition</option>
+                            <option value="New with tags">New with tags</option>
+                            <option value="Like new">Like new</option>
+                            <option value="Good">Good</option>
+                            <option value="Fair">Fair</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="color">Primary Color</label>
+                        <input type="text" id="color" name="color" class="form-input" 
+                               placeholder="e.g. Blue, Black, etc.">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pricing -->
+            <div class="form-section">
+                <h3>Pricing</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="price">Selling Price ($) *</label>
+                        <input type="number" id="price" name="price" required class="form-input" 
+                               min="1" step="0.01" placeholder="0.00">
+                    </div>
+                    <div class="form-group">
+                        <label for="originalPrice">Original Price ($)</label>
+                        <input type="number" id="originalPrice" name="originalPrice" class="form-input" 
+                               min="1" step="0.01" placeholder="0.00">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Shipping -->
+            <div class="form-section">
+                <h3>Shipping</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="shippingCost">Shipping Cost ($)</label>
+                        <input type="number" id="shippingCost" name="shippingCost" class="form-input" 
+                               min="0" step="0.01" placeholder="0.00" value="0">
+                    </div>
+                    <div class="form-group">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="freeShipping" name="freeShipping">
+                            <label for="freeShipping">Offer free shipping</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit -->
+            <div class="form-actions">
+                <button type="button" class="btn btn-outline" onclick="history.back()">Cancel</button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-upload"></i>
+                    List Item
+                </button>
+            </div>
+        </form>
+    </div>
+</section>
+
+<script>
+document.getElementById('images').addEventListener('change', function(e) {
+    const preview = document.getElementById('image-preview');
+    preview.innerHTML = '';
+    
+    const files = Array.from(e.target.files);
+    files.forEach((file, index) => {
+        if (file && file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const div = document.createElement('div');
+                div.className = 'preview-item';
+                div.innerHTML = `
+                    <img src="${e.target.result}" alt="Preview ${index + 1}">
+                    <button type="button" onclick="removeImage(${index})" class="remove-btn">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                preview.appendChild(div);
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+});
+
+function removeImage(index) {
+    const fileInput = document.getElementById('images');
+    const files = Array.from(fileInput.files);
+    files.splice(index, 1);
+    
+    // Create new FileList
+    const dt = new DataTransfer();
+    files.forEach(file => dt.items.add(file));
+    fileInput.files = dt.files;
+    
+    // Trigger change event to update preview
+    fileInput.dispatchEvent(new Event('change'));
+}
+
+// Free shipping toggle
+document.getElementById('freeShipping').addEventListener('change', function(e) {
+    const shippingCost = document.getElementById('shippingCost');
+    if (e.target.checked) {
+        shippingCost.value = '0';
+        shippingCost.disabled = true;
+    } else {
+        shippingCost.disabled = false;
+    }
+});
+</script>
+<script src="/js/sell.js"></script>

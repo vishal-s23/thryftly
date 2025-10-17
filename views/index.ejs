@@ -1,0 +1,231 @@
+<!-- Hero Section -->
+<section class="hero">
+    <div class="hero-content">
+        <div class="hero-text">
+            <h1 class="hero-title">
+                Find Your Perfect
+                <span class="highlight">Thrifted</span>
+                Treasure
+            </h1>
+            <p class="hero-subtitle">
+                Discover unique, sustainable fashion pieces from a community of conscious sellers. 
+                Every purchase helps reduce fashion waste while building your dream wardrobe.
+            </p>
+            <div class="hero-actions">
+                <a href="/marketplace" class="btn btn-primary">
+                    <i class="fas fa-search"></i>
+                    Start Shopping
+                </a>
+                <% if (typeof user === 'undefined' || !user) { %>
+                    <a href="/auth/register" class="btn btn-outline">
+                        Join Community
+                    </a>
+                <% } else { %>
+                    <a href="/sell" class="btn btn-outline">
+                        <i class="fas fa-plus"></i>
+                        Sell Items
+                    </a>
+                <% } %>
+            </div>
+        </div>
+        <div class="hero-image">
+            <div class="hero-card card-1">
+                <img src="<%= getImageUrl('hero-1.jpg') %>" alt="Vintage dress" class="card-image">
+                <div class="card-overlay">
+                    <span class="card-price">$45</span>
+                </div>
+            </div>
+            <div class="hero-card card-2">
+                <img src="<%= getImageUrl('hero-2.jpg') %>" alt="Designer bag" class="card-image">
+                <div class="card-overlay">
+                    <span class="card-price">$120</span>
+                </div>
+            </div>
+            <div class="hero-card card-3">
+                <img src="<%= getImageUrl('hero-3.jpg') %>" alt="Casual jacket" class="card-image">
+                <div class="card-overlay">
+                    <span class="card-price">$65</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="stats">
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-icon">
+                    <i class="fas fa-leaf"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-number">50K+</h3>
+                    <p class="stat-label">Items Saved</p>
+                </div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-number">15K+</h3>
+                    <p class="stat-label">Happy Sellers</p>
+                </div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-icon">
+                    <i class="fas fa-heart"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-number">98%</h3>
+                    <p class="stat-label">Satisfaction Rate</p>
+                </div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-icon">
+                    <i class="fas fa-recycle"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-number">2M+</h3>
+                    <p class="stat-label">Items Recycled</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Products -->
+<section class="featured-products">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Featured Finds</h2>
+            <p class="section-subtitle">Handpicked treasures from our community</p>
+        </div>
+        
+        <% if (products && products.length > 0) { %>
+            <div class="products-grid">
+                <% products.forEach(product => { %>
+                    <div class="product-card">
+                        <div class="product-image">
+                            <a href="/product/<%= product._id %>">
+                                <img src="<%= product.images[0]?.url || '/images/placeholder.jpg' %>" 
+                                     alt="<%= product.title %>" 
+                                     class="product-img">
+                            </a>
+                            <div class="product-actions">
+                                <button class="like-btn" data-product-id="<%= product._id %>">
+                                    <i class="far fa-heart"></i>
+                                </button>
+                            </div>
+                            <div class="product-badges">
+                                <% if (product.condition === 'New with tags') { %>
+                                    <span class="badge badge-new">New</span>
+                                <% } %>
+                                <% if (product.shippingOptions.freeShipping) { %>
+                                    <span class="badge badge-shipping">Free Shipping</span>
+                                <% } %>
+                            </div>
+                        </div>
+                        <div class="product-info">
+                            <div class="product-brand"><%= product.brand || 'Unbranded' %></div>
+                            <h3 class="product-title">
+                                <a href="/product/<%= product._id %>"><%= product.title %></a>
+                            </h3>
+                            <div class="product-details">
+                                <span class="product-size">Size <%= product.size %></span>
+                                <span class="product-condition"><%= product.condition %></span>
+                            </div>
+                            <div class="product-price">
+                                $<%= product.price.toFixed(2) %>
+                                <% if (product.originalPrice && product.originalPrice > product.price) { %>
+                                    <span class="original-price">$<%= product.originalPrice.toFixed(2) %></span>
+                                <% } %>
+                            </div>
+                            <div class="product-seller">
+                                <img src="<%= product.seller.avatar || '/images/default-avatar.jpg' %>" 
+                                     alt="<%= product.seller.firstName %>" 
+                                     class="seller-avatar">
+                                <span class="seller-name"><%= product.seller.firstName %> <%= product.seller.lastName %></span>
+                                <div class="seller-rating">
+                                    <% for (let i = 1; i <= 5; i++) { %>
+                                        <i class="<%= i <= product.seller.rating.average ? 'fas' : 'far' %> fa-star"></i>
+                                    <% } %>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+            
+            <div class="section-footer">
+                <a href="/marketplace" class="btn btn-outline">
+                    View All Items
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        <% } else { %>
+            <div class="empty-state">
+                <i class="fas fa-tshirt"></i>
+                <h3>No products available yet</h3>
+                <p>Be the first to list an item on Thriftly!</p>
+                <a href="/sell" class="btn btn-primary">List Your First Item</a>
+            </div>
+        <% } %>
+    </div>
+</section>
+
+<!-- Categories Section -->
+<section class="categories">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Shop by Category</h2>
+            <p class="section-subtitle">Find exactly what you're looking for</p>
+        </div>
+        
+        <div class="categories-grid">
+            <a href="/marketplace?category=tops" class="category-card">
+                <div class="category-image">
+                    <img src="<%= getImageUrl('category-tops.jpg') %>" alt="Tops">
+                </div>
+                <h3 class="category-name">Tops</h3>
+            </a>
+            <a href="/marketplace?category=dresses" class="category-card">
+                <div class="category-image">
+                    <img src="<%= getImageUrl('category-dresses.jpg') %>" alt="Dresses">
+                </div>
+                <h3 class="category-name">Dresses</h3>
+            </a>
+            <a href="/marketplace?category=shoes" class="category-card">
+                <div class="category-image">
+                    <img src="<%= getImageUrl('category-shoes.jpg') %>" alt="Shoes">
+                </div>
+                <h3 class="category-name">Shoes</h3>
+            </a>
+            <a href="/marketplace?category=accessories" class="category-card">
+                <div class="category-image">
+                    <img src="<%= getImageUrl('category-accessories.jpg') %>" alt="Accessories">
+                </div>
+                <h3 class="category-name">Accessories</h3>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta">
+    <div class="container">
+        <div class="cta-content">
+            <h2 class="cta-title">Ready to Start Your Thrifting Journey?</h2>
+            <p class="cta-subtitle">Join thousands of fashion lovers making sustainable choices</p>
+            <div class="cta-actions">
+                <% if (typeof user === 'undefined' || !user) { %>
+                    <a href="/auth/register" class="btn btn-primary">Get Started</a>
+                <% } else { %>
+                    <a href="/sell" class="btn btn-primary">List Your Items</a>
+                <% } %>
+                <a href="/about" class="btn btn-outline">Learn More</a>
+            </div>
+        </div>
+    </div>
+</section>

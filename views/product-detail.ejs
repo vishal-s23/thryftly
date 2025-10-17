@@ -1,0 +1,205 @@
+<!-- Product Detail -->
+<section class="product-detail">
+    <div class="container">
+        <div class="product-detail-content">
+            <!-- Product Images -->
+            <div class="product-images">
+                <div class="main-image">
+                    <img id="main-image" src="<%= product.images[0]?.url || '/images/placeholder.jpg' %>" alt="<%= product.title %>">
+                </div>
+                <% if (product.images && product.images.length > 1) { %>
+                    <div class="image-thumbnails">
+                        <% product.images.forEach((image, index) => { %>
+                            <img src="<%= image.url %>" alt="<%= product.title %> - Image <%= index + 1 %>" 
+                                 onclick="changeMainImage('<%= image.url %>')" class="thumbnail">
+                        <% }) %>
+                    </div>
+                <% } %>
+            </div>
+
+            <!-- Product Info -->
+            <div class="product-info">
+                <div class="product-header">
+                    <div class="product-brand"><%= product.brand || 'Unbranded' %></div>
+                    <h1 class="product-title"><%= product.title %></h1>
+                    <div class="product-price">
+                        $<%= product.price.toFixed(2) %>
+                        <% if (product.originalPrice && product.originalPrice > product.price) { %>
+                            <span class="original-price">$<%= product.originalPrice.toFixed(2) %></span>
+                            <span class="discount-badge">
+                                <%= Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100) %>% OFF
+                            </span>
+                        <% } %>
+                    </div>
+                </div>
+
+                <div class="product-details">
+                    <div class="detail-item">
+                        <span class="detail-label">Size:</span>
+                        <span class="detail-value"><%= product.size %></span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Condition:</span>
+                        <span class="detail-value"><%= product.condition %></span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Category:</span>
+                        <span class="detail-value"><%= product.category %></span>
+                    </div>
+                    <% if (product.color) { %>
+                        <div class="detail-item">
+                            <span class="detail-label">Color:</span>
+                            <span class="detail-value"><%= product.color %></span>
+                        </div>
+                    <% } %>
+                </div>
+
+                <div class="product-description">
+                    <h3>Description</h3>
+                    <p><%= product.description %></p>
+                </div>
+
+                <!-- Shipping Info -->
+                <div class="shipping-info">
+                    <h3>Shipping</h3>
+                    <% if (product.shippingOptions?.freeShipping) { %>
+                        <div class="shipping-option">
+                            <i class="fas fa-shipping-fast"></i>
+                            <span>Free Shipping</span>
+                        </div>
+                    <% } else { %>
+                        <div class="shipping-option">
+                            <i class="fas fa-truck"></i>
+                            <span>Shipping: $<%= product.shippingOptions?.cost || '0.00' %></span>
+                        </div>
+                    <% } %>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="product-actions">
+                    <% if (product.status === 'available') { %>
+                        <button class="btn btn-primary btn-full" onclick="contactSeller()">
+                            <i class="fas fa-envelope"></i>
+                            Contact Seller
+                        </button>
+                        <button class="btn btn-outline" onclick="addToFavorites('<%= product._id %>')">
+                            <i class="far fa-heart"></i>
+                            Save Item
+                        </button>
+                    <% } else { %>
+                        <div class="sold-badge">
+                            <i class="fas fa-check-circle"></i>
+                            This item has been sold
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seller Info -->
+        <div class="seller-section">
+            <div class="seller-info">
+                <div class="seller-avatar">
+                    <img src="<%= product.seller.avatar || '/images/default-avatar.jpg' %>" alt="<%= product.seller.firstName %>">
+                </div>
+                <div class="seller-details">
+                    <h3><%= product.seller.firstName %> <%= product.seller.lastName %></h3>
+                    <div class="seller-stats">
+                        <div class="stat">
+                            <span class="stat-label">Member since:</span>
+                            <span class="stat-value"><%= new Date(product.seller.createdAt).getFullYear() %></span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-label">Rating:</span>
+                            <div class="seller-rating">
+                                <% for (let i = 1; i <= 5; i++) { %>
+                                    <i class="<%= i <= (product.seller.rating?.average || 0) ? 'fas' : 'far' %> fa-star"></i>
+                                <% } %>
+                                <span>(<%= product.seller.rating?.count || 0 %>)</span>
+                            </div>
+                        </div>
+                    </div>
+                    <% if (product.seller.location) { %>
+                        <div class="seller-location">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span><%= product.seller.location %></span>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+
+        <!-- Related Products -->
+        <% if (relatedProducts && relatedProducts.length > 0) { %>
+            <div class="related-products">
+                <h2>Similar Items</h2>
+                <div class="products-grid">
+                    <% relatedProducts.forEach(item => { %>
+                        <div class="product-card">
+                            <div class="product-image">
+                                <a href="/product/<%= item._id %>">
+                                    <img src="<%= item.images[0]?.url || '/images/placeholder.jpg' %>" 
+                                         alt="<%= item.title %>" class="product-img">
+                                </a>
+                            </div>
+                            <div class="product-info">
+                                <div class="product-brand"><%= item.brand || 'Unbranded' %></div>
+                                <h3 class="product-title">
+                                    <a href="/product/<%= item._id %>"><%= item.title %></a>
+                                </h3>
+                                <div class="product-price">$<%= item.price.toFixed(2) %></div>
+                            </div>
+                        </div>
+                    <% }) %>
+                </div>
+            </div>
+        <% } %>
+    </div>
+</section>
+
+<script>
+function changeMainImage(imageSrc) {
+    document.getElementById('main-image').src = imageSrc;
+    
+    // Update active thumbnail
+    document.querySelectorAll('.thumbnail').forEach(thumb => {
+        thumb.classList.remove('active');
+        if (thumb.src === imageSrc) {
+            thumb.classList.add('active');
+        }
+    });
+}
+
+function contactSeller() {
+    // For now, show a simple alert. Later you can implement messaging system
+    alert('Contact feature coming soon! For now, please use the contact information provided.');
+}
+
+function addToFavorites(productId) {
+    // Add to favorites functionality
+    fetch(`/api/users/favorites/${productId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Item added to your favorites!');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Please log in to save items to your favorites.');
+    });
+}
+
+// Set first thumbnail as active
+document.addEventListener('DOMContentLoaded', function() {
+    const firstThumbnail = document.querySelector('.thumbnail');
+    if (firstThumbnail) {
+        firstThumbnail.classList.add('active');
+    }
+});
+</script>
